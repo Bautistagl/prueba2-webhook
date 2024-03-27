@@ -303,38 +303,29 @@ app.get('/installation-token', async (req, res) => {
 
 
 app.post('/api/github/webhooks', (req, res) => {
-  const eventType = req.headers['x-github-event'];
-  const payload = req.body;
+  try {
+    const eventType = req.headers['x-github-event'];
+    const payload = req.body;
 
-
-  console.log('GitHub Event Type:', eventType);
-  if (payload.action === 'created') {
-    const installationId = payload.installation.id;
-    const repositories = payload.repositories;
-    const username = payload.installation.account.login;
-    let firstRepositoryName = '';
-
-    if (repositories.length > 0) {
-      firstRepositoryName = repositories[0].name;
-    }
-    res.redirect(`/installation-token?installation_id=${installationId}&username=${username}&repository=${firstRepositoryName}`);
+    console.log('GitHub Event Type:', eventType);
     
-   
-  } else if (payload.action === 'deleted') {
-    console.log('Installation Deleted:', payload);
-   
+    if ( payload.action === 'created') {
+      const installationId = payload.installation.id;
+      const repositories = payload.repositories;
+      const username = payload.sender.login;
+
+      // Obtener el nombre del primer repositorio con permisos
+      const firstRepoName = repositories.length > 0 ? repositories[0].name : '';
+
+      // Redirigir al usuario a la ruta '/installation-token' con los parámetros en la URL
+      return res.redirect(`/installation-token?installation_id=${installationId}&repo_name=${firstRepoName}&username=${username}`);
+    }
+
+    res.sendStatus(200); // Enviar una respuesta de estado 200 solo si no se cumple ninguna condición
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
   }
-  
-  else if (payload.action === 'added') {
-        console.log('Installation Repositories Added:', payload);
-      
-      } else if (payload.action === 'removed') {
-        console.log('Installation Repositories Remfoved:', payload);
-  
-      }
-
-
-  res.sendStatus(200);
 });
 
 
