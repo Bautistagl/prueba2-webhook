@@ -315,8 +315,10 @@ app.post('/api/github/webhooks', (req, res) => {
       const repositories = payload.repositories;
       const username = payload.sender.login;
 
+
       // Obtener el nombre del primer repositorio con permisos
       const firstRepoName = repositories.length > 0 ? repositories[0].name : '';
+      console.log(installationId,username,firstRepoName)
 
       // Redirigir al usuario a la ruta '/installation-token' con los parámetros en la URL
       return res.redirect(`/installation-token?installation_id=${installationId}&repo_name=${firstRepoName}&username=${username}`);
