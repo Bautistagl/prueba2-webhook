@@ -5,7 +5,7 @@ import { createTokenAuth } from "@octokit/auth-token";
 import fetch from "node-fetch";
 import jwt from "jsonwebtoken";
 import fs from 'fs';
-import getInstallationToken from './services/installationService'
+import getInstallationToken from './services/installationService.js'
 
 const userTokens = {};
 const privateKeyPath = '.././private.pem';
