@@ -308,6 +308,7 @@ app.post('/api/github/webhooks', (req, res) => {
     const payload = req.body;
 
     console.log('GitHub Event Type:', eventType);
+    console.log('ESTO ES PAYLOAAAAAAAAAAAAAAAAAAAAAAAAAAD', payload)
     
     if ( payload.action === 'created') {
       const installationId = payload.installation.id;
