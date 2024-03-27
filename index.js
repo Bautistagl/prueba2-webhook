@@ -6,6 +6,7 @@ import fetch from "node-fetch";
 import jwt from "jsonwebtoken";
 import fs from 'fs';
 import getInstallationToken from './services/installationService.js'
+import createBranch from "./services/createBranch.js";
 
 const userTokens = {};
 const privateKeyPath = './private.pem';
@@ -274,7 +275,10 @@ app.post('/api/github/webhooks', async (req, res) => {
       // Obtener el nombre del primer repositorio con permisos
       const firstRepoName = repositories.length > 0 ? repositories[0].name : '';
       const installationTokenResponse = await getInstallationToken(installationId, githubAppId, privateKey);
-      console.log(installationTokenResponse,'ESTO ES REPOSEEEEEEE')
+      if (installationTokenResponse.ok) {
+        const branchResponse = await createBranch(installationId,githubAppId,privateKey,username,firstRepoName)
+        console.log(branchResponse)
+      }
       // Redirigir al usuario a la ruta '/installation-token' con los parámetros en la URL
       return res.redirect(`/installation-token?installation_id=${installationId}&repo_name=${firstRepoName}&username=${username}`);
     }
