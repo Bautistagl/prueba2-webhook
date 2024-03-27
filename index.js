@@ -75,7 +75,7 @@ app.get('/add-file-to-branch', async (req, res) => {
         body: JSON.stringify({
           message: 'Agregando nuevo archivo',
           content: contenidoBase64,
-          branch: 'nuevaBranch'
+          branch: 'nuevaBranch2'
         })
       });
 
@@ -155,7 +155,7 @@ app.get('/create-branch', async (req, res) => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            ref: 'refs/heads/nuevaBranch',
+            ref: 'refs/heads/nuevaBranch2',
             sha: baseCommitSHA
           })
         });
