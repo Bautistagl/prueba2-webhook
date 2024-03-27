@@ -5,7 +5,7 @@ import { createTokenAuth } from "@octokit/auth-token";
 import fetch from "node-fetch";
 import jwt from "jsonwebtoken";
 import fs from 'fs';
-import installationService from './services/installationService'
+import getInstallationToken from './services/installationService'
 
 const userTokens = {};
 const privateKeyPath = '.././private.pem';
@@ -273,7 +273,7 @@ app.post('/api/github/webhooks', async (req, res) => {
 
       // Obtener el nombre del primer repositorio con permisos
       const firstRepoName = repositories.length > 0 ? repositories[0].name : '';
-      const installationTokenResponse = await installationService.getInstallationToken(installationId, githubAppId, privateKey);
+      const installationTokenResponse = await getInstallationToken(installationId, githubAppId, privateKey);
       console.log(installationTokenResponse,'ESTO ES REPOSEEEEEEE')
       // Redirigir al usuario a la ruta '/installation-token' con los parámetros en la URL
       return res.redirect(`/installation-token?installation_id=${installationId}&repo_name=${firstRepoName}&username=${username}`);
