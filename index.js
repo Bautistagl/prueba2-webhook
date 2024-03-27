@@ -5,10 +5,10 @@ import { createTokenAuth } from "@octokit/auth-token";
 import fetch from "node-fetch";
 import jwt from "jsonwebtoken";
 import fs from 'fs';
-
+import installationService from './services/installationService'
 
 const userTokens = {};
-const privateKeyPath = './private.pem';
+const privateKeyPath = '.././private.pem';
 const privateKey = fs.readFileSync(privateKeyPath, 'utf8');
 const githubAppId = process.env.APP_ID;
 
@@ -252,63 +252,18 @@ app.get('/create-pull-request', async (req, res) => {
 });
 
 
-app.get('/installation-token', async (req, res) => {
-
-  const installationId = req.query.installation_id
-  try {
-    // Obtener el tiempo de expiración del token (10 minutos)
-    const now = Math.floor(Date.now() / 1000);
-    const expiresAt = now + 400;
- 
-    // Crear el payload del JWT
-    const payload = {
-      iat: now, // Tiempo de emisión del token (en segundos)
-      exp: expiresAt, // Tiempo de expiración del token (1 hora después del tiempo de emisión)
-      iss: githubAppId // Identificador de tu aplicación de GitHub (como un número entero)
-    };
-
-    // Firmar el JWT
-  
-    const token = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
-   
-    // Realizar la solicitud para obtener el token de acceso de instalación
-    const installationTokenResponse = await fetch(`https://api.github.com/app/installations/${installationId}/access_tokens`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'X-GitHub-Api-Version': '2022-11-28' 
-      }
-    });
-     
-    // Verificar si la solicitud fue exitosa
-    if (installationTokenResponse.ok) {
-      // La solicitud fue exitosa, obtener el token de acceso de instalación
-      
-      res.redirect(`/create-branch?installation_id=${installationId}`);
-    } else {
-      // La solicitud no fue exitosa, enviar un mensaje de error
-      
-      const errorData = await installationTokenResponse.json();
-      res.status(installationTokenResponse.status).json({ error: errorData});
-    }
-  } catch (error) {
-    // Capturar cualquier error que ocurra durante el proceso de solicitud
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Error al obtener el token de acceso de instalación' });
-  }
-});
 
 
 
 
-app.post('/api/github/webhooks', (req, res) => {
+
+
+app.post('/api/github/webhooks', async (req, res) => {
   try {
     const eventType = req.headers['x-github-event'];
     const payload = req.body;
 
-    console.log('GitHub Event Type:', eventType);
-    console.log('ESTO ES PAYLOAAAAAAAAAAAAAAAAAAAAAAAAAAD', payload)
+
     
     if ( payload.action === 'created') {
       const installationId = payload.installation.id;
@@ -318,8 +273,8 @@ app.post('/api/github/webhooks', (req, res) => {
 
       // Obtener el nombre del primer repositorio con permisos
       const firstRepoName = repositories.length > 0 ? repositories[0].name : '';
-      console.log(installationId,username,firstRepoName)
-
+      const installationTokenResponse = await installationService.getInstallationToken(installationId, githubAppId, privateKey);
+      console.log(installationTokenResponse,'ESTO ES REPOSEEEEEEE')
       // Redirigir al usuario a la ruta '/installation-token' con los parámetros en la URL
       return res.redirect(`/installation-token?installation_id=${installationId}&repo_name=${firstRepoName}&username=${username}`);
     }
