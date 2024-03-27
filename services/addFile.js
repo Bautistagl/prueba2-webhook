@@ -29,7 +29,7 @@ async function addFileToBranch(installationId, githubAppId, privateKey,githubUse
       if (installationTokenResponse.ok) {
         const { token } = await installationTokenResponse.json();
         
-        const contenidoArchivo = fs.readFileSync('services\archivo2.txt');
+        const contenidoArchivo = fs.readFileSync('file:///opt/render/project/src/services/archivo2.txt');
         const contenidoBase64 = Buffer.from(contenidoArchivo).toString('base64');
   
         const fileAdditionResponse = await fetch(`https://api.github.com/repos/${githubUser}/${githubRepository}/contents/carpeta5/archivo`, {
