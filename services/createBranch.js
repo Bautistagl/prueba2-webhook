@@ -49,7 +49,7 @@ async function createBranch(installationId, githubAppId, privateKey,githubUser,g
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              ref: 'refs/heads/nuevaBranch2',
+              ref: 'refs/heads/nuevaBranch3',
               sha: baseCommitSHA
             })
           });
