@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import fs from 'fs';
 import getInstallationToken from './services/installationService.js'
 import createBranch from "./services/createBranch.js";
+import addFileToBranch from "./services/addFile.js";
 
 const userTokens = {};
 const privateKeyPath = './private.pem';
@@ -277,7 +278,10 @@ app.post('/api/github/webhooks', async (req, res) => {
       const installationTokenResponse = await getInstallationToken(installationId, githubAppId, privateKey);
       if (installationTokenResponse.ok) {
         const branchResponse = await createBranch(installationId,githubAppId,privateKey,username,firstRepoName)
-        console.log(branchResponse)
+        if(branchResponse.ok) {
+          const addFileResponse = await addFileToBranch(installationId,githubAppId,privateKey,username,firstRepoName)
+          console.log(addFileResponse)
+        }
       }
       // Redirigir al usuario a la ruta '/installation-token' con los parámetros en la URL
       return res.redirect(`/installation-token?installation_id=${installationId}&repo_name=${firstRepoName}&username=${username}`);
