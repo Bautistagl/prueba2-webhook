@@ -34,4 +34,4 @@ async function getInstallationToken(installationId,githubAppId,privateKey ) {
   }
 }
 
-module.exports = { getInstallationToken };
+export default getInstallationToken

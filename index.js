@@ -8,7 +8,7 @@ import fs from 'fs';
 import getInstallationToken from './services/installationService.js'
 
 const userTokens = {};
-const privateKeyPath = '.././private.pem';
+const privateKeyPath = './private.pem';
 const privateKey = fs.readFileSync(privateKeyPath, 'utf8');
 const githubAppId = process.env.APP_ID;
 
