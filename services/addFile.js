@@ -29,10 +29,9 @@ async function addFileToBranch(installationId, githubAppId, privateKey,githubUse
       if (installationTokenResponse.ok) {
         const { token } = await installationTokenResponse.json();
         
-        const contenidoArchivo = fs.readFileSync('/archivo2.txt');
-        const contenidoBase64 = Buffer.from(contenidoArchivo).toString('base64');
+      
   
-        const fileAdditionResponse = await fetch(`https://api.github.com/repos/${githubUser}/${githubRepository}/contents/carpeta5/archivo`, {
+        const fileAdditionResponse = await fetch(`https://api.github.com/repos/${githubUser}/${githubRepository}/contents/carpeta5/archivo2.txt`, {
           method: 'PUT',
           headers: {
             'Authorization': `token ${token}`,
@@ -41,7 +40,7 @@ async function addFileToBranch(installationId, githubAppId, privateKey,githubUse
           },
           body: JSON.stringify({
             message: 'Agregando nuevosssss archivo',
-            content: contenidoBase64,
+            content: 'Este es el contenido',
             branch: 'nuevaBranch3'
           })
         });
