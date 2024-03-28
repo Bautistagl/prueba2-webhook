@@ -28,7 +28,10 @@ async function addFileToBranch(installationId, githubAppId, privateKey,githubUse
   
       if (installationTokenResponse.ok) {
         const { token } = await installationTokenResponse.json();
-        
+        const fileContent = 'Contenido del archivo en formato de texto plano'; // Contenido de tu archivo
+
+        // Codifica el contenido del archivo a base64
+        const encodedContent = Buffer.from(fileContent).toString('base64');
       
   
         const fileAdditionResponse = await fetch(`https://api.github.com/repos/${githubUser}/${githubRepository}/contents/carpeta5/archivo2.txt`, {
@@ -40,7 +43,7 @@ async function addFileToBranch(installationId, githubAppId, privateKey,githubUse
           },
           body: JSON.stringify({
             message: 'Agregando nuevosssss archivo',
-            content: 'Este es el contenido',
+            content: encodedContent,
             branch: 'nuevaBranch3'
           })
         });
