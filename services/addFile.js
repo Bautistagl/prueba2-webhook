@@ -44,7 +44,7 @@ async function addFileToBranch(installationId, githubAppId, privateKey,githubUse
           body: JSON.stringify({
             message: 'Este es el nuevo archivo agregado por grid',
             content: encodedContent,
-            branch: 'branchGrid'
+            branch: 'gridBranch'
           })
         });
   
