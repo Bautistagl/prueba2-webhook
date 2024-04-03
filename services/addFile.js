@@ -28,13 +28,13 @@ async function addFileToBranch(installationId, githubAppId, privateKey,githubUse
   
       if (installationTokenResponse.ok) {
         const { token } = await installationTokenResponse.json();
-        const fileContent = 'Contenido del archivo en formato de texto plano'; // Contenido de tu archivo
+        const fileContent = 'Contenido del archivo GridCloud'; // Contenido de tu archivo
 
         // Codifica el contenido del archivo a base64
         const encodedContent = Buffer.from(fileContent).toString('base64');
       
   
-        const fileAdditionResponse = await fetch(`https://api.github.com/repos/${githubUser}/${githubRepository}/contents/carpeta5/archivo2.txt`, {
+        const fileAdditionResponse = await fetch(`https://api.github.com/repos/${githubUser}/${githubRepository}/contents/carpetaGrid/archivoGrid.txt`, {
           method: 'PUT',
           headers: {
             'Authorization': `token ${token}`,
@@ -42,9 +42,9 @@ async function addFileToBranch(installationId, githubAppId, privateKey,githubUse
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            message: 'Agregando nuevosssss archivo',
+            message: 'Este es el nuevo archivo agregado por grid',
             content: encodedContent,
-            branch: 'nuevaBranch3'
+            branch: 'branchGrid'
           })
         });
   
