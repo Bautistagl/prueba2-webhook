@@ -40,7 +40,7 @@ async function createPullRequest(installationId, githubAppId, privateKey, github
                 },
                 body: JSON.stringify({
                     title: 'Pull Request para agregar archivos Grid Cloud a main',
-                    head: 'branchGrid', 
+                    head: 'gridBranch', 
                     base: 'main', 
                     body: 'Pull request de Grid Cloud'
                 })
@@ -51,7 +51,7 @@ async function createPullRequest(installationId, githubAppId, privateKey, github
                 return { success: true, message: 'Pull request creado exitosamente' };
             } else {
                 const errorData = await pullRequestResponse.json();
-                return { success: false, error: errorData };
+                return { success: false, error: errorData.errors };
             }
         } else {
             // La solicitud no fue exitosa, obtener el mensaje de error
