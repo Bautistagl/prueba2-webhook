@@ -16,11 +16,15 @@
   },
   "dependencies": {
     "@octokit/auth-token": "^5.0.1",
+    "body-parser": "^1.20.2",
     "dotenv": "^16.0.3",
     "express": "^4.18.3",
     "jsonwebtoken": "^9.0.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.9.3",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.0",
-    "octokit": "^3.1.2"
+    "octokit": "^3.1.2",
+    "pg": "^8.11.5"
   }
 }
