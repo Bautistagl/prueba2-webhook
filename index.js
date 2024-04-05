@@ -21,14 +21,14 @@ app.use(express.json());
 
 
  
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL, // URL de conexión a tu base de datos PostgreSQL
-});
+// const pool = new Pool({
+//   connectionString: process.env.POSTGRES_URL, // URL de conexión a tu base de datos PostgreSQL
+// });
 
-pool.connect((err) => {
-    if (err) throw err
-    console.log("Connect to PostgreSQL successfuSlly!")
-})
+// pool.connect((err) => {
+//     if (err) throw err
+//     console.log("Connect to PostgreSQL successfuSlly!")
+// })
 
 
 
