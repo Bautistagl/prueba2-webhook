@@ -44,13 +44,12 @@ app.post('/api/github/pullRequest', async (req, res) => {
     if (!installationId) {
       return res.status(400).send('Installation ID missing');
     } 
+    const query = 'INSERT INTO grid_installations (id) VALUES ($1) RETURNING *';
+    const values = [installationId];
+    const result = await pool.query(query, values);
 
-
-
-   
-    
-  // Enviar una respuesta de estado 200 solo si no se cumple ninguna condición
-  res.status(200)
+    // Devuelve la nueva fila insertada como respuesta
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('Internal Server Error');
@@ -67,34 +66,35 @@ app.post('/api/github/webhooks', async (req, res) => {
 
     
     if ( payload.action === 'created') {
-      const installationId = payload.installation.id;
-      const repositories = payload.repositories;
-      const username = payload.sender.login;
+      console.log(payload.repositories)
+      // const installationId = payload.installation.id;
+      // const repositories = payload.repositories;
+      // const username = payload.sender.login;
 
 
-      // Obtener el nombre del primer repositorio con permisos
-      const firstRepoName = repositories.length > 0 ? repositories[0].name : '';
-      const installationTokenResponse = await getInstallationToken(installationId, githubAppId, privateKey);
-      if (installationTokenResponse.ok) {
-        const branchResponse = await createBranch(installationId,githubAppId,privateKey,username,firstRepoName)
-        if(branchResponse.ok) {
-          const addFileResponse = await addFileToBranch(installationId,githubAppId,privateKey,username,firstRepoName)
-            if(addFileResponse.ok) {
-              const createPullResponse = await createPullRequest(installationId,githubAppId,privateKey,username,firstRepoName)
-              console.log(createPullResponse)
-            }
-            else{
-              console.log('No se pudo anadir el archivo a la branch')
-            }
+      // // Obtener el nombre del primer repositorio con permisos
+      // const firstRepoName = repositories.length > 0 ? repositories[0].name : '';
+      // const installationTokenResponse = await getInstallationToken(installationId, githubAppId, privateKey);
+      // if (installationTokenResponse.ok) {
+      //   const branchResponse = await createBranch(installationId,githubAppId,privateKey,username,firstRepoName)
+      //   if(branchResponse.ok) {
+      //     const addFileResponse = await addFileToBranch(installationId,githubAppId,privateKey,username,firstRepoName)
+      //       if(addFileResponse.ok) {
+      //         const createPullResponse = await createPullRequest(installationId,githubAppId,privateKey,username,firstRepoName)
+      //         console.log(createPullResponse)
+      //       }
+      //       else{
+      //         console.log('No se pudo anadir el archivo a la branch')
+      //       }
 
-        }
-        else{
-          console.log('No se pudo crear el branch correspondiente')
-        }
-      } 
-      else{
-        console.log('No se pudo obtener el token de instalacion')
-      }
+      //   }
+      //   else{
+      //     console.log('No se pudo crear el branch correspondiente')
+      //   }
+      // } 
+      // else{
+      //   console.log('No se pudo obtener el token de instalacion')
+      // }
       // Redirigir al usuario a la ruta '/installation-token' con los parámetros en la URL
       return res.redirect(`/installation-token?installation_id=${installationId}&repo_name=${firstRepoName}&username=${username}`);
     }
