@@ -111,8 +111,10 @@ app.get('/api/github/check', async (req, res) => {
 app.post('/api/github/webhooks', async (req, res) => {
   try {
     const eventType = req.headers['x-github-event'];
+    const body = req.body
     const payload = req.body.payload;
-    
+    console.log(payload, 'PAAAAAAYLOOOOOOAAAAAAAD')
+    console.log(body, 'BOOOOOOOODYYYYYYYYYY')
     if (payload.action === 'created') {
       // Insertar datos de la instalación en la tabla `installations`
       const installationQuery = `
