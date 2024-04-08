@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express, { response } from "express";
+import cors from "cors"
 import fetch from "node-fetch";
 import fs from 'fs';
 import getInstallationToken from './services/installationService.js'
@@ -16,7 +17,7 @@ const githubAppId = process.env.APP_ID;
 
 
 const app = express();
-
+app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 
 
@@ -89,7 +90,7 @@ app.get('/api/github/check', async (req, res) => {
     // Realizar la consulta a la base de datos para verificar si existe alguna fila
     const query = `
       SELECT COUNT(*) AS count 
-      FROM grid_database 
+      FROM grid_installations 
       WHERE owner LIKE $1`;
     const values = [`%${searchString}%`];
     const result = await pool.query(query, values);
@@ -135,15 +136,17 @@ app.post('/api/github/webhooks', async (req, res) => {
       // Insertar datos de los repositorios asociados en la tabla `repositories`
       const repositories = payload.repositories;
       for (const repository of repositories) {
+        console.log(repository)
         const repositoryQuery = `
-          INSERT INTO repositories (id, installation_id, node_id, name, fullname)
-          VALUES ($1, $2, $3, $4, $5)`;
+          INSERT INTO repositories (id, installation_id, node_id, name, fullname, owner)
+          VALUES ($1, $2, $3, $4, $5, $6)`;
         const repositoryValues = [
           repository.id,
           installationId,
           repository.node_id,
           repository.name,
           repository.full_name,
+          repository.owner
         ];
         await pool.query(repositoryQuery, repositoryValues);
       }
