@@ -18,7 +18,7 @@ const githubAppId = process.env.APP_ID;
 
 
 const app = express();
-app.use(cors({ origin: 'https://git-integrator-front.vercel.app/' }));
+app.use(cors({ origin: 'https://git-integrator-front.vercel.app' }));
 app.use(express.json());
 
 
