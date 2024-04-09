@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import jwt from "jsonwebtoken";
 
-async function createPullRequest(installationId, githubAppId, privateKey, githubUser, githubRepository) {
+async function createPullRequest(installationId, githubAppId, privateKey, fullName) {
     try {
         const now = Math.floor(Date.now() / 1000);
         const expiresAt = now + 400;
@@ -31,7 +31,7 @@ async function createPullRequest(installationId, githubAppId, privateKey, github
             const { token } = await installationTokenResponse.json();
 
            
-            const pullRequestResponse = await fetch(`https://api.github.com/repos/${githubUser}/${githubRepository}/pulls`, {
+            const pullRequestResponse = await fetch(`https://api.github.com/repos/${fullName}/pulls`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `token ${token}`,

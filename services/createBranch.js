@@ -4,11 +4,11 @@ import "dotenv/config";
 
 
 
-async function createBranch(installationId, githubAppId, privateKey,githubUser,githubRepository) {
+async function createBranch(installationId, githubAppId, privateKey,fullName) {
     try {
       const now = Math.floor(Date.now() / 1000);
       const expiresAt = now + 400;
-  
+      
       const payload = {
         iat: now,
         exp: expiresAt,
@@ -28,8 +28,8 @@ async function createBranch(installationId, githubAppId, privateKey,githubUser,g
   
       if (installationTokenResponse.ok) {
         const { token } = await installationTokenResponse.json();
-  
-        const baseBranchResponse = await fetch(`https://api.github.com/repos/${githubUser}/${githubRepository}/branches/main`, {
+        
+        const baseBranchResponse = await fetch(`https://api.github.com/repos/${fullName}/branches/main`, {
           method: 'GET',
           headers: {
             'Authorization': `token ${token}`,
@@ -41,7 +41,7 @@ async function createBranch(installationId, githubAppId, privateKey,githubUser,g
           const { commit } = await baseBranchResponse.json();
           const baseCommitSHA = commit.sha;
   
-          const branchCreationResponse = await fetch(`https://api.github.com/repos/${githubUser}/${githubRepository}/git/refs`, {
+          const branchCreationResponse = await fetch(`https://api.github.com/repos/${fullName}/git/refs`, {
             method: 'POST',
             headers: {
               'Authorization': `token ${token}`,

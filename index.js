@@ -31,8 +31,7 @@ pool.connect((err) => {
     console.log("Connect to PostgreSQL successfuSlly!")
 })
 
-const CLIENT_ID = "Iv1.dc11b1e22135af26"
-const CLIENT_SECRET = "c640ddfd4d07be575ee5c9e069daf218a9ea0e34"
+
 
 
 
@@ -77,6 +76,7 @@ const CLIENT_SECRET = "c640ddfd4d07be575ee5c9e069daf218a9ea0e34"
 //   }
 // });
 
+
 app.get('/api/github/check', async (req, res) => {
   try {
     // Obtener el string a buscar desde los parámetros de la solicitud
@@ -101,65 +101,20 @@ app.get('/api/github/check', async (req, res) => {
     // Determinar si se encontraron filas que coincidan con la búsqueda
     const exists = rowCount > 0;
 
-    // Si existe, obtener todas las filas de la tabla installations donde owner coincide
     if (exists) {
-      const installationQuery = `
-        SELECT *
-        FROM installations
-        WHERE owner = $1`;
-      const installationValues = [searchString];
-      const installationResult = await pool.query(installationQuery, installationValues);
+      const repoQuery = `
+      SELECT * 
+      FROM repositories 
+      WHERE owner LIKE $1`;
+      const repositoriesValues = [searchString];
+      const repositoriesResult = await pool.query(repoQuery, repositoriesValues);
+      res.json({ exists, repositories: repositoriesResult.rows });
+    }
+      else {
 
-      // Obtener los repositorios asociados a las instalaciones encontradas
-      const repositories = [];
-      for (const installation of installationResult.rows) {
-        const repositoryQuery = `
-          SELECT * 
-          FROM repositories 
-          WHERE installation_id = $1 AND fullname LIKE $2`;
-        const repositoryValues = [installation.id, `${searchString}/%`];
-        const repositoryResult = await pool.query(repositoryQuery, repositoryValues);
-        repositories.push(...repositoryResult.rows);
+        res.json({ exists });
       }
 
-      // Enviar la respuesta con las filas obtenidas
-      res.json({ exists, repositories });
-    } else {
-      // Enviar la respuesta al cliente indicando que no se encontraron coincidencias
-      res.json({ exists });
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.get('/api/github/check', async (req, res) => {
-  try {
-    // Obtener el string a buscar desde los parámetros de la solicitud
-    const searchString = req.query.owner;
-
-    // Verificar si se proporcionó un string para buscar
-    if (!searchString) {
-      return res.status(400).json({ error: 'Missing search string in query parameters' });
-    }
-
-    // Realizar la consulta a la base de datos para verificar si existe alguna fila
-    const query = `
-      SELECT COUNT(*) AS count 
-      FROM grid_installations 
-      WHERE owner LIKE $1`;
-    const values = [`%${searchString}%`];
-    const result = await pool.query(query, values);
-
-    // Obtener el resultado de la consulta
-    const rowCount = parseInt(result.rows[0].count);
-
-    // Determinar si se encontraron filas que coincidan con la búsqueda
-    const exists = rowCount > 0;
-
-    // Enviar la respuesta al cliente
-    res.json({ exists });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -219,7 +174,37 @@ app.post('/api/github/webhooks', async (req, res) => {
   }
 });
 
+app.post('/operacionesEnCadena', async (req, res) => {
+  try {
+      // Obtiene los parámetros necesarios de la solicitud
+      const { installationId, fullName} = req.body;
+      console.log(req.body)
+      // Crea la rama
+      const branchCreationResponse = await createBranch(installationId, githubAppId, privateKey, fullName);
+      if (!branchCreationResponse.ok) {
+          throw new Error('Error al crear la rama');
+      }
 
+      // Agrega el archivo a la rama si la creación de la rama fue exitosa
+      const fileAdditionResponse = await addFileToBranch(installationId, githubAppId, privateKey, fullName);
+      if (!fileAdditionResponse.ok) {
+          throw new Error('Error al agregar el archivo a la rama');
+      }
+
+      // Crea el pull request si la adición del archivo fue exitosa
+      const pullRequestResponse = await createPullRequest(installationId, githubAppId, privateKey, fullName);
+      if (!pullRequestResponse.success) {
+          throw new Error('Error al crear el pull request');
+      }
+
+      // Si todas las operaciones fueron exitosas, devuelve una respuesta exitosa
+      res.json({ success: true, message: 'Operaciones en cadena completadas exitosamente' });
+  } catch (error) {
+      // Manejo de errores
+      console.error(error);
+      res.status(500).json({ error: error.message });
+  }
+});
 
 
 

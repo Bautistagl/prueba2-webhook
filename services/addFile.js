@@ -4,7 +4,7 @@ import "dotenv/config";
 import fs from 'fs';
 import path from 'path';
 
-async function addFileToBranch(installationId, githubAppId, privateKey,githubUser,githubRepository) {
+async function addFileToBranch(installationId, githubAppId, privateKey,fullName) {
     try {
       const now = Math.floor(Date.now() / 1000);
       const expiresAt = now + 400;
@@ -34,7 +34,7 @@ async function addFileToBranch(installationId, githubAppId, privateKey,githubUse
         const encodedContent = Buffer.from(fileContent).toString('base64');
       
   
-        const fileAdditionResponse = await fetch(`https://api.github.com/repos/${githubUser}/${githubRepository}/contents/carpetaGrid/archivoGrid.txt`, {
+        const fileAdditionResponse = await fetch(`https://api.github.com/repos/${fullName}/contents/carpetaGrid/archivoGrid.txt`, {
           method: 'PUT',
           headers: {
             'Authorization': `token ${token}`,
