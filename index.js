@@ -3,6 +3,7 @@ import express, { response } from "express";
 import cors from "cors"
 import fetch from "node-fetch";
 import fs from 'fs';
+import jwt from "jsonwebtoken";
 import getInstallationToken from './services/installationService.js'
 import createBranch from "./services/createBranch.js";
 import addFileToBranch from "./services/addFile.js";
@@ -17,7 +18,7 @@ const githubAppId = process.env.APP_ID;
 
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'https://git-integrator-front.vercel.app/' }));
 app.use(express.json());
 
 
@@ -31,50 +32,6 @@ pool.connect((err) => {
     console.log("Connect to PostgreSQL successfuSlly!")
 })
 
-
-
-
-
-// app.post('/api/github/pullRequest', async (req, res) => {
-//   try {
-
-//     const payload = req.body;
-//     const installationId = payload.payload.installation.id;
-
-//     // const installationId = req.body.installation_id;
-//     if (!installationId) {
-//       return res.status(400).send('Installation ID missing');
-//     } 
-//     const query = 'INSERT INTO grid_installations (id) VALUES ($1) RETURNING *';
-//     const values = [installationId];
-//     const result = await pool.query(query, values);
-
-//     // Devuelve la nueva fila insertada como respuesta
-//     res.status(201).json(result.rows[0]);
-//   } catch (error) {
-//     console.error('Error:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// })
-
-// app.get('/api/github/repositories/:installationId', async (req, res) => {
-//   try {
-//     const installationId = req.params.installationId;
-
-   
-//     const query = `
-//       SELECT * 
-//       FROM repositories 
-//       WHERE installation_id = $1`;
-//     const { rows } = await pool.query(query, [installationId]);
-
-    
-//     res.json(rows);
-//   } catch (error) {
-//     console.error('Error:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
 
 
 app.get('/api/github/check', async (req, res) => {
@@ -212,10 +169,11 @@ app.post('/operacionesEnCadena', async (req, res) => {
 
 
 
+
 app.get('/', (req, res) => {
   const githubAuthUrl = 'https://github.com/login/oauth/authorize';
   const clientId = process.env.APP_SECRET;
-  const redirectUri = 'http://localhost:3000'; 
+  const redirectUri = 'http://localhost:4000'; 
   const scope = 'repo';
  
   const authUrl = `${githubAuthUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
