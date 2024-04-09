@@ -101,6 +101,63 @@ app.get('/api/github/check', async (req, res) => {
     // Determinar si se encontraron filas que coincidan con la búsqueda
     const exists = rowCount > 0;
 
+    // Si existe, obtener todas las filas de la tabla installations donde owner coincide
+    if (exists) {
+      const installationQuery = `
+        SELECT *
+        FROM installations
+        WHERE owner = $1`;
+      const installationValues = [searchString];
+      const installationResult = await pool.query(installationQuery, installationValues);
+
+      // Obtener los repositorios asociados a las instalaciones encontradas
+      const repositories = [];
+      for (const installation of installationResult.rows) {
+        const repositoryQuery = `
+          SELECT * 
+          FROM repositories 
+          WHERE installation_id = $1 AND fullname LIKE $2`;
+        const repositoryValues = [installation.id, `${searchString}/%`];
+        const repositoryResult = await pool.query(repositoryQuery, repositoryValues);
+        repositories.push(...repositoryResult.rows);
+      }
+
+      // Enviar la respuesta con las filas obtenidas
+      res.json({ exists, repositories });
+    } else {
+      // Enviar la respuesta al cliente indicando que no se encontraron coincidencias
+      res.json({ exists });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/github/check', async (req, res) => {
+  try {
+    // Obtener el string a buscar desde los parámetros de la solicitud
+    const searchString = req.query.owner;
+
+    // Verificar si se proporcionó un string para buscar
+    if (!searchString) {
+      return res.status(400).json({ error: 'Missing search string in query parameters' });
+    }
+
+    // Realizar la consulta a la base de datos para verificar si existe alguna fila
+    const query = `
+      SELECT COUNT(*) AS count 
+      FROM grid_installations 
+      WHERE owner LIKE $1`;
+    const values = [`%${searchString}%`];
+    const result = await pool.query(query, values);
+
+    // Obtener el resultado de la consulta
+    const rowCount = parseInt(result.rows[0].count);
+
+    // Determinar si se encontraron filas que coincidan con la búsqueda
+    const exists = rowCount > 0;
+
     // Enviar la respuesta al cliente
     res.json({ exists });
   } catch (error) {
@@ -136,7 +193,7 @@ app.post('/api/github/webhooks', async (req, res) => {
       // Insertar datos de los repositorios asociados en la tabla `repositories`
       const repositories = payload.repositories;
       for (const repository of repositories) {
-        console.log(repository)
+       
         const repositoryQuery = `
           INSERT INTO repositories (id, installation_id, node_id, name, fullname, owner)
           VALUES ($1, $2, $3, $4, $5, $6)`;
@@ -146,7 +203,7 @@ app.post('/api/github/webhooks', async (req, res) => {
           repository.node_id,
           repository.name,
           repository.full_name,
-          repository.owner
+          payload.installation.account.login,
         ];
         await pool.query(repositoryQuery, repositoryValues);
       }
